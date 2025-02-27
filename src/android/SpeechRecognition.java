@@ -46,33 +46,25 @@ public class SpeechRecognition extends CordovaPlugin {
     private String lang;
     private String serviceURI;
 
-    private static String [] permissions = { Manifest.permission.RECORD_AUDIO };
+    private static String[] permissions = { Manifest.permission.RECORD_AUDIO };
     private static int RECORD_AUDIO = 0;
 
-    protected void getMicPermission()
-    {
+    protected void getMicPermission() {
         PermissionHelper.requestPermission(this, RECORD_AUDIO, permissions[RECORD_AUDIO]);
     }
 
-    private void promptForMic()
-    {
-        if(PermissionHelper.hasPermission(this, permissions[RECORD_AUDIO])) {
+    private void promptForMic() {
+        if (PermissionHelper.hasPermission(this, permissions[RECORD_AUDIO])) {
             this.startRecognition();
-        }
-        else
-        {
+        } else {
             getMicPermission();
         }
-
     }
 
-    public void onRequestPermissionResult(int requestCode, String[] permissions,
-                                          int[] grantResults) throws JSONException
-    {
-        for(int r:grantResults)
-        {
-            if(r == PackageManager.PERMISSION_DENIED)
-            {
+    public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults)
+            throws JSONException {
+        for (int r : grantResults) {
+            if (r == PackageManager.PERMISSION_DENIED) {
                 fireErrorEvent(4, "Permission denied for microphone access.");
                 fireEvent("end");
                 return;
@@ -89,7 +81,7 @@ public class SpeechRecognition extends CordovaPlugin {
             // init
             if (DoInit()) {
                 callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
-                
+
                 Handler loopHandler = new Handler(Looper.getMainLooper());
                 loopHandler.post(new Runnable() {
 
@@ -98,13 +90,12 @@ public class SpeechRecognition extends CordovaPlugin {
                         recognizer = SpeechRecognizer.createSpeechRecognizer(cordova.getActivity().getBaseContext());
                         recognizer.setRecognitionListener(new SpeechRecognitionListner());
                     }
-                    
+
                 });
             } else {
                 callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, NOT_PRESENT_MESSAGE));
             }
-        }
-        else if (ACTION_SPEECH_RECOGNIZE_START.equals(action)) {
+        } else if (ACTION_SPEECH_RECOGNIZE_START.equals(action)) {
             // recognize speech
             if (!recognizerPresent) {
                 callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, NOT_PRESENT_MESSAGE));
@@ -116,14 +107,11 @@ public class SpeechRecognition extends CordovaPlugin {
 
             this.speechRecognizerCallbackContext = callbackContext;
             this.promptForMic();
-        }
-        else if (ACTION_SPEECH_RECOGNIZE_STOP.equals(action)) {
+        } else if (ACTION_SPEECH_RECOGNIZE_STOP.equals(action)) {
             stop(false);
-        }
-        else if (ACTION_SPEECH_RECOGNIZE_ABORT.equals(action)) {
+        } else if (ACTION_SPEECH_RECOGNIZE_ABORT.equals(action)) {
             stop(true);
-        }
-        else {
+        } else {
             // Invalid action
             String res = "Unknown action: " + action;
             return false;
@@ -134,10 +122,10 @@ public class SpeechRecognition extends CordovaPlugin {
     private void startRecognition() {
 
         final Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,lang);
-        intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,interimResults);
-        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,maxAlternatives);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, lang);
+        intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, interimResults);
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, maxAlternatives);
         if (SERVICE_URI_LOCAL.equals(serviceURI)) {
             intent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
         }
@@ -156,7 +144,7 @@ public class SpeechRecognition extends CordovaPlugin {
         res.setKeepCallback(true);
         this.speechRecognizerCallbackContext.sendPluginResult(res);
     }
-    
+
     private void stop(boolean abort) {
         this.aborted = abort;
         if (abort) {
@@ -190,14 +178,15 @@ public class SpeechRecognition extends CordovaPlugin {
         return this.recognizerPresent;
     }
 
-    private void fireRecognitionEvent(String type, ArrayList<String> transcripts, float[] confidences, boolean isFinal) {
+    private void fireRecognitionEvent(String type, ArrayList<String> transcripts, float[] confidences,
+            boolean isFinal) {
         Log.d(LOG_TAG, "fire recognition event: " + type);
 
         JSONObject event = new JSONObject();
         JSONArray results = new JSONArray();
         JSONArray alternatives = new JSONArray();
         try {
-            for(int i=0; i<transcripts.size(); i++) {
+            for (int i = 0; i < transcripts.size(); i++) {
                 JSONObject alternative = new JSONObject();
                 alternative.put("transcript", transcripts.get(i));
                 // The spec has the final (isFinal) attribute as part of the result and not per alternative.
@@ -221,27 +210,27 @@ public class SpeechRecognition extends CordovaPlugin {
         }
         PluginResult pr = new PluginResult(PluginResult.Status.OK, event);
         pr.setKeepCallback(true);
-        this.speechRecognizerCallbackContext.sendPluginResult(pr); 
+        this.speechRecognizerCallbackContext.sendPluginResult(pr);
     }
 
     private void fireEvent(String type) {
         Log.d(LOG_TAG, "fire event: " + type);
         JSONObject event = new JSONObject();
         try {
-            event.put("type",type);
+            event.put("type", type);
         } catch (JSONException e) {
             // this will never happen
         }
         PluginResult pr = new PluginResult(PluginResult.Status.OK, event);
         pr.setKeepCallback(true);
-        this.speechRecognizerCallbackContext.sendPluginResult(pr); 
+        this.speechRecognizerCallbackContext.sendPluginResult(pr);
     }
 
     private void fireErrorEvent(int errorCode, String message) {
         Log.d(LOG_TAG, "fire error event: " + errorCode + " - " + message);
         JSONObject event = new JSONObject();
         try {
-            event.put("type","error");
+            event.put("type", "error");
             event.put("error", errorCode);
             event.put("message", message);
         } catch (JSONException e) {
@@ -249,7 +238,7 @@ public class SpeechRecognition extends CordovaPlugin {
         }
         PluginResult pr = new PluginResult(PluginResult.Status.ERROR, event);
         pr.setKeepCallback(true);
-        this.speechRecognizerCallbackContext.sendPluginResult(pr); 
+        this.speechRecognizerCallbackContext.sendPluginResult(pr);
     }
 
     class SpeechRecognitionListner implements RecognitionListener {
@@ -270,12 +259,12 @@ public class SpeechRecognition extends CordovaPlugin {
         @Override
         public void onEndOfSpeech() {
             Log.d(LOG_TAG, "end speech");
-            if(speaking) {
+            if (speaking) {
                 fireEvent("speechend");
                 fireEvent("soundend");
                 speaking = false;
             }
-            if(listening) {
+            if (listening) {
                 fireEvent("audioend");
                 listening = false;
             }
@@ -284,69 +273,69 @@ public class SpeechRecognition extends CordovaPlugin {
         @Override
         public void onError(int error) {
             Log.d(LOG_TAG, "error " + error);
-            switch(error) {
-                case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
-                    Log.d(LOG_TAG, "ERROR_INSUFFICIENT_PERMISSIONS");
-                    fireErrorEvent(4, "Permission denied.");
-                    break;
+            switch (error) {
+            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+                Log.d(LOG_TAG, "ERROR_INSUFFICIENT_PERMISSIONS");
+                fireErrorEvent(4, "Permission denied.");
+                break;
 
-                case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
-                    Log.d(LOG_TAG, "ERROR_SPEECH_TIMEOUT");
-                    fireErrorEvent(0, "Timeout.");
-                    break;
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+                Log.d(LOG_TAG, "ERROR_SPEECH_TIMEOUT");
+                fireErrorEvent(0, "Timeout.");
+                break;
 
-                case SpeechRecognizer.ERROR_NETWORK:
-                    Log.d(LOG_TAG, "ERROR_NETWORK");
-                    fireErrorEvent(3, "Network communication error.");
-                    break;
+            case SpeechRecognizer.ERROR_NETWORK:
+                Log.d(LOG_TAG, "ERROR_NETWORK");
+                fireErrorEvent(3, "Network communication error.");
+                break;
 
-                case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
-                    Log.d(LOG_TAG, "ERROR_NETWORK_TIMEOUT");
-                    fireErrorEvent(3, "Network timeout.");
-                    break;
+            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+                Log.d(LOG_TAG, "ERROR_NETWORK_TIMEOUT");
+                fireErrorEvent(3, "Network timeout.");
+                break;
 
-                case SpeechRecognizer.ERROR_AUDIO:
-                    Log.d(LOG_TAG, "ERROR_AUDIO");
-                    fireErrorEvent(2, "Audio recording error.");
-                    break;
+            case SpeechRecognizer.ERROR_AUDIO:
+                Log.d(LOG_TAG, "ERROR_AUDIO");
+                fireErrorEvent(2, "Audio recording error.");
+                break;
 
-                case SpeechRecognizer.ERROR_CLIENT:
-                    Log.d(LOG_TAG, "ERROR_CLIENT");
-                    fireErrorEvent(4, "Client side error.");
-                    break;
+            case SpeechRecognizer.ERROR_CLIENT:
+                Log.d(LOG_TAG, "ERROR_CLIENT");
+                fireErrorEvent(4, "Client side error.");
+                break;
 
-                case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
-                    Log.d(LOG_TAG, "ERROR_RECOGNIZER_BUSY");
-                    fireErrorEvent(4, "Busy.");
-                    break;
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+                Log.d(LOG_TAG, "ERROR_RECOGNIZER_BUSY");
+                fireErrorEvent(4, "Busy.");
+                break;
 
-                case SpeechRecognizer.ERROR_SERVER:
-                    Log.d(LOG_TAG, "ERROR_SERVER");
-                    fireErrorEvent(4, "Server error.");
-                    break;
+            case SpeechRecognizer.ERROR_SERVER:
+                Log.d(LOG_TAG, "ERROR_SERVER");
+                fireErrorEvent(4, "Server error.");
+                break;
 
-                case SpeechRecognizer.ERROR_NO_MATCH:
-                    Log.d(LOG_TAG, "ERROR_NO_MATCH");
-                    Log.d(LOG_TAG, "SpeechRecognizer.ERROR_NO_MATCH");
-                    ArrayList<String> transcript = new ArrayList<String>();
-                    float[] confidence = {};
-                    fireRecognitionEvent("nomatch", transcript, confidence, true);
-                    break;
+            case SpeechRecognizer.ERROR_NO_MATCH:
+                Log.d(LOG_TAG, "ERROR_NO_MATCH");
+                Log.d(LOG_TAG, "SpeechRecognizer.ERROR_NO_MATCH");
+                ArrayList<String> transcript = new ArrayList<String>();
+                float[] confidence = {};
+                fireRecognitionEvent("nomatch", transcript, confidence, true);
+                break;
 
-                default:
-                    fireErrorEvent(4, "Error " + error);
-                    break;
+            default:
+                fireErrorEvent(4, "Error " + error);
+                break;
             }
-            if(speaking) {
+            if (speaking) {
                 fireEvent("speechend");
                 fireEvent("soundend");
                 speaking = false;
             }
-            if(listening) {
+            if (listening) {
                 fireEvent("audioend");
                 listening = false;
             }
-            if(started) {
+            if (started) {
                 fireEvent("end");
                 started = false;
             }
@@ -379,7 +368,7 @@ public class SpeechRecognition extends CordovaPlugin {
         @Override
         public void onResults(Bundle results) {
             Log.d(LOG_TAG, "onResults " + results);
-            if(started) {
+            if (started) {
                 ArrayList<String> transcript = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 float[] confidence = results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES);
                 if (transcript.size() > 0) {
@@ -396,8 +385,8 @@ public class SpeechRecognition extends CordovaPlugin {
 
         @Override
         public void onRmsChanged(float rmsdB) {
-            //Log.d(LOG_TAG, "rms changed");
+            // Log.d(LOG_TAG, "rms changed");
         }
-        
+
     }
 }
