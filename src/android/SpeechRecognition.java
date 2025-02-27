@@ -322,22 +322,22 @@ public class SpeechRecognition extends CordovaPlugin {
                 fireRecognitionEvent("nomatch", transcript, confidence, true);
                 break;
 
-            case SpeechRecognizer.ERROR_TOO_MANY_REQUESTS: // 10
+            case 10: // SDK 31 SpeechRecognizer.ERROR_TOO_MANY_REQUESTS: // 10
                 Log.d(LOG_TAG, "ERROR_TOO_MANY_REQUESTS");
                 fireErrorEvent(4, "Too many requests from the same client.");
                 break;
 
-            case SpeechRecognizer.ERROR_SERVER_DISCONNECTED: // 11
+            case 11: // SDK 31 SpeechRecognizer.ERROR_SERVER_DISCONNECTED: // 11
                 Log.d(LOG_TAG, "ERROR_SERVER_DISCONNECTED");
                 fireErrorEvent(3, "Server has been disconnected.");
                 break;
 
-            case SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED: // 12
+            case 12: // SDK 31 SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED: // 12
                 Log.d(LOG_TAG, "ERROR_LANGUAGE_NOT_SUPPORTED");
                 fireErrorEvent(7, "Requested language (" + lang + ") is not currently available to be used.");
                 break;
 
-            case SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE: // 13
+            case 13: // SDK 31 SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE: // 13
                 Log.d(LOG_TAG, "ERROR_LANGUAGE_UNAVAILABLE");
                 fireErrorEvent(7, "Requested language (" + lang + ") is supported, but not available currently.");
                 break;
