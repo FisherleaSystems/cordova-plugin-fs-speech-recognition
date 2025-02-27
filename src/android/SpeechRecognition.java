@@ -274,52 +274,72 @@ public class SpeechRecognition extends CordovaPlugin {
         public void onError(int error) {
             Log.d(LOG_TAG, "error " + error);
             switch (error) {
-            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS: // 9
                 Log.d(LOG_TAG, "ERROR_INSUFFICIENT_PERMISSIONS");
                 fireErrorEvent(4, "Permission denied.");
                 break;
 
-            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT: // 6
                 Log.d(LOG_TAG, "ERROR_SPEECH_TIMEOUT");
                 fireErrorEvent(0, "Timeout.");
                 break;
 
-            case SpeechRecognizer.ERROR_NETWORK:
+            case SpeechRecognizer.ERROR_NETWORK: // 2
                 Log.d(LOG_TAG, "ERROR_NETWORK");
                 fireErrorEvent(3, "Network communication error.");
                 break;
 
-            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT: // 1
                 Log.d(LOG_TAG, "ERROR_NETWORK_TIMEOUT");
                 fireErrorEvent(3, "Network timeout.");
                 break;
 
-            case SpeechRecognizer.ERROR_AUDIO:
+            case SpeechRecognizer.ERROR_AUDIO: // 3
                 Log.d(LOG_TAG, "ERROR_AUDIO");
                 fireErrorEvent(2, "Audio recording error.");
                 break;
 
-            case SpeechRecognizer.ERROR_CLIENT:
+            case SpeechRecognizer.ERROR_CLIENT: // 5
                 Log.d(LOG_TAG, "ERROR_CLIENT");
                 fireErrorEvent(4, "Client side error.");
                 break;
 
-            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY: // 8
                 Log.d(LOG_TAG, "ERROR_RECOGNIZER_BUSY");
                 fireErrorEvent(4, "Busy.");
                 break;
 
-            case SpeechRecognizer.ERROR_SERVER:
+            case SpeechRecognizer.ERROR_SERVER: // 4
                 Log.d(LOG_TAG, "ERROR_SERVER");
                 fireErrorEvent(4, "Server error.");
                 break;
 
-            case SpeechRecognizer.ERROR_NO_MATCH:
+            case SpeechRecognizer.ERROR_NO_MATCH: // 7
                 Log.d(LOG_TAG, "ERROR_NO_MATCH");
                 Log.d(LOG_TAG, "SpeechRecognizer.ERROR_NO_MATCH");
                 ArrayList<String> transcript = new ArrayList<String>();
                 float[] confidence = {};
                 fireRecognitionEvent("nomatch", transcript, confidence, true);
+                break;
+
+            case SpeechRecognizer.ERROR_TOO_MANY_REQUESTS: // 10
+                Log.d(LOG_TAG, "ERROR_TOO_MANY_REQUESTS");
+                fireErrorEvent(4, "Too many requests from the same client.");
+                break;
+
+            case SpeechRecognizer.ERROR_SERVER_DISCONNECTED: // 11
+                Log.d(LOG_TAG, "ERROR_SERVER_DISCONNECTED");
+                fireErrorEvent(3, "Server has been disconnected.");
+                break;
+
+            case SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED: // 12
+                Log.d(LOG_TAG, "ERROR_LANGUAGE_NOT_SUPPORTED");
+                fireErrorEvent(7, "Requested language (" + lang + ") is not currently available to be used.");
+                break;
+
+            case SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE: // 13
+                Log.d(LOG_TAG, "ERROR_LANGUAGE_UNAVAILABLE");
+                fireErrorEvent(7, "Requested language (" + lang + ") is supported, but not available currently.");
                 break;
 
             default:
