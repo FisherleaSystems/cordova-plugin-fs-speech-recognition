@@ -74,3 +74,7 @@ Improved compatibility with the W3C specification (https://w3c.github.io/speech-
 
 -   Add GitHub action to automatically release to GitHub packages.
 -   No source changes.
+
+# Update v1.0.3 2025/02.27
+
+-   Now recognizes more error codes from Android's SpeechRecognizer and provides better error messages for them.
